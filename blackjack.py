@@ -5,8 +5,6 @@ YELLOW = "#fde371"
 GREEN = "#3C6633"
 PURPLE = "#633068"
 TANGERINE = "#F98948"
-BLUE = "#058ED9"
-BLUE2 = "#0C6291"
 
 window = Tk()
 
@@ -142,7 +140,7 @@ def check_winner():
     player_has_ace = False
 
     # Make the dealer cards visible
-    dealer_x = 450
+    dealer_x = 400
     dealer_y = 30
     for card in dealer_hand:
         card_id = canvas.create_image(dealer_x, dealer_y, image=card["image"])
@@ -215,7 +213,7 @@ def render_table():
     canvas.itemconfig(hand_total_text, text=f"{player_hand_total}")
 
     # Same for the dealer
-    dealer_x = 450
+    dealer_x = 400
     dealer_y = 30
     for index, card in enumerate(dealer_hand):
         # First card is face down
@@ -231,7 +229,7 @@ def render_table():
 
 def game_end(game_over):
     if game_over:
-        play_again_button.place(x=270, y=160)
+        play_again_button.place(x=260, y=160)
 
 
 # ----------------------------------- UI SETUP ----------------------------------- #
@@ -246,9 +244,9 @@ hold_button_image = PhotoImage(file="assets/button_hold.png")
 play_again_img = PhotoImage(file="assets/button_play-again.png")
 
 background = canvas.create_image(348, 240, image=table_img)
-game_state_label = canvas.create_text(348, 240, text="", fill=YELLOW, font='Arial 36 bold')
-hand_total_label = canvas.create_text(565, 300, text="Hand Total: ", fill=YELLOW, font='Arial 16 bold')
-hand_total_text = canvas.create_text(635, 300, text="0", fill=YELLOW, font='Arial 16 bold')
+game_state_label = canvas.create_text(348, 240, text="", fill=YELLOW, font=("Times New Roman", 36, 'bold'))
+hand_total_label = canvas.create_text(560, 300, text="Hand Total: ", fill=YELLOW, font=("Times New Roman", 16, 'bold'))
+hand_total_text = canvas.create_text(630, 300, text="0", fill=YELLOW, font=("Times New Roman", 16, 'bold'))
 hit_me_button = Button(image=hit_button_image, background=GREEN, border=0, command=hit_me)
 hold_button = Button(image=hold_button_image, background=GREEN, border=0, command=dealer_turn)
 play_again_button = Button(image=play_again_img, background=GREEN, border=0, command=play_again)

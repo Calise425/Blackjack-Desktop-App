@@ -28,12 +28,15 @@ Assets are all hand-drawn by me!
 ## How to Play
 
 1. When you run the game, you'll see a window pop up with the Blackjack table displayed.
+![Game Start](/screenshots/game_start.png?raw=true)
 2. Click the "Hit Me" button to draw a card.
 3. Click the "Hold" button to end your turn and let the dealer play.
 4. Try to get as close to 21 as possible without going over.
 5. If you go over 21, you bust and lose the game.
 6. The dealer will then reveal their cards and play their turn.
 7. The game will automatically determine the winner and display the result.
+![Play Again](/screenshots/play_again.png?raw=true)
+8. Click "Play Again" and enjoy!
 
 ## Features
 
@@ -48,7 +51,7 @@ Assets are all hand-drawn by me!
 
 ## Contributing
 
-Contributions are welcome! Feel free to open a pull request or submit an issue if you encounter any bugs or have suggestions for improvements.
+Contributions are welcome! Feel free to reach if you encounter any bugs or have suggestions for improvements.
 
 ## Wishlist/ TODO
 
