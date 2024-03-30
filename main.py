@@ -10,10 +10,9 @@ BLUE2 = "#0C6291"
 
 window = Tk()
 
-# TODO: After player accepts another card, trigger a check to see if they go bust
-# TODO: Add computer turn functionality, and a way to reset the board
-# TODO: Pull files/functions out into another file where possible
 
+# -------------------------------- VARIABLE SETUP -------------------------------- #
+# PhotoImage constants of all the card images
 card_back = PhotoImage(file="assets/card back.png")
 card_2 = PhotoImage(file="assets/2.png")
 card_3 = PhotoImage(file="assets/3.png")
@@ -28,7 +27,6 @@ card_jack = PhotoImage(file="assets/jack.png")
 card_queen = PhotoImage(file="assets/queen.png")
 card_king = PhotoImage(file="assets/king.png")
 card_ace = PhotoImage(file="assets/ace.png")
-
 
 # I assigned a number from 2-14 to these cards to then pick a 'random' card using randint(2,14)
 # The value is saved for the calculating of total hand value, and the card will be used to render in the GUI
@@ -52,41 +50,142 @@ player_hand = []
 dealer_hand = []
 
 
+# -------------------------------- GAMEPLAY FUNCTIONS -------------------------------- #
 def start_new_game(p_hand, d_hand):
-    """Clears all cards then deals the dealer and player both 2 cards"""
-    if len(p_hand) > 0:
-        p_hand.clear()
-        d_hand.clear()
+    """Clears both hands then deals the dealer and player each 2 cards"""
+    play_again_button.place(x=1000, y=1000)
+    canvas.itemconfig(game_state_label, text="")
+    p_hand.clear()
+    d_hand.clear()
     deal_card(p_hand)
     deal_card(p_hand)
     deal_card(d_hand)
     deal_card(d_hand)
+    check_blackjack()
+
+
+def play_again():
+    start_new_game(player_hand, dealer_hand)
 
 
 def deal_card(target_player: list):
-    """This function deals a new random card from the deck to the chosen players hand (dealer or player)
+    """Deals a new random card from the deck to the chosen players hand (dealer or player)
     and then calls the function to display them on screen"""
     random_num = randint(2, 14)
     target_player.append(deck[random_num])
-    render_hand()
+    render_table()
 
 
 def hit_me():
-    """Simply calls deal card but doesn't need an argument so can be passed into the button command"""
+    """Wrapper function to call deal_card as a button command"""
     deal_card(player_hand)
+    check_bust()
 
 
-def computer_turn():
-    pass
+def dealer_turn():
+    dealer_total = 0
+    dealer_has_ace = False
+    for card in dealer_hand:
+        dealer_total += card["value"]
+        if card["value"] == 11:
+            dealer_has_ace = True
+    if dealer_total > 21:
+        if dealer_has_ace:
+            # Reduce the ace value to 1 if busting
+            dealer_total -= 10
+            if dealer_total < 17:
+                dealer_turn()
+            else:
+                check_winner()
+        else:
+            check_winner()
+    elif dealer_total < 17:
+        deal_card(dealer_hand)
+        dealer_turn()
+    else:
+        check_winner()
 
 
-def check_state():
-    """Checks to see if player total is equal to or over 21,
-    and if not who wins between dealer and player"""
-    pass
+def check_bust():
+    player_total = 0
+    has_ace = False
+    for card in player_hand:
+        player_total += card["value"]
+        if card["value"] == 11:
+            has_ace = True
+
+    if player_total > 21:
+        if has_ace:
+            if player_total > 31:
+                canvas.itemconfig(game_state_label, text="Player Bust! Dealer wins.")
+                game_end(True)
+        else:
+            canvas.itemconfig(game_state_label, text="Player Bust! Dealer wins.")
+            game_end(True)
 
 
-def render_hand():
+def check_blackjack():
+    player_total = 0
+    for card in player_hand:
+        player_total += card["value"]
+    if player_total == 21:
+        canvas.itemconfig(game_state_label, text="BLACKJACK!")
+        game_end(True)
+
+
+def check_winner():
+    """Checks for a winner after the dealer turn,
+    provided the dealer and player are not bust"""
+    dealer_total = 0
+    player_total = 0
+    dealer_has_ace = False
+    player_has_ace = False
+
+    # Make the dealer cards visible
+    dealer_x = 450
+    dealer_y = 30
+    for card in dealer_hand:
+        card_id = canvas.create_image(dealer_x, dealer_y, image=card["image"])
+        dealer_x -= 30
+        canvas.itemconfig(card_id, tags="card")
+
+    # Check if dealer or player has an ace
+    for card in dealer_hand:
+        dealer_total += card["value"]
+        if card["value"] == 11:
+            dealer_has_ace = True
+
+    for card in player_hand:
+        player_total += card["value"]
+        if card["value"] == 11:
+            player_has_ace = True
+
+    # Adjust total if necessary
+    if dealer_total > 21 and dealer_has_ace:
+        dealer_total -= 10
+
+    if player_total > 21 and player_has_ace:
+        player_total -= 10
+
+    # Compare totals
+    if player_total > 21:
+        canvas.itemconfig(game_state_label, text="Player Bust! Dealer wins.")
+        game_end(True)
+    elif dealer_total > 21:
+        canvas.itemconfig(game_state_label, text="Dealer Bust! You win!")
+        game_end(True)
+    elif player_total > dealer_total:
+        canvas.itemconfig(game_state_label, text="You win!")
+        game_end(True)
+    elif player_total < dealer_total:
+        canvas.itemconfig(game_state_label, text="Dealer wins.")
+        game_end(True)
+    else:
+        canvas.itemconfig(game_state_label, text="It's a tie!")
+        game_end(True)
+
+
+def render_table():
     """This function removes old card images if there are any, then goes through the
     hands and places the new cards on the GUI, as well as rendering player hand total"""
     # Delete old card images
@@ -94,6 +193,7 @@ def render_hand():
 
     # Loop through player hand, render the cards, and render hand total
     player_hand_total = 0
+    player_has_ace = False
     player_x = 350
     player_y = 350
     for card in player_hand:
@@ -104,6 +204,13 @@ def render_hand():
         player_hand_total += int(card["value"])
         # Tag the card item with "card"
         canvas.itemconfig(card_id, tags="card")
+        if card["value"] == 11:
+            player_has_ace = True
+
+    # Checks if ace should have a value of 1 or 11 depending on score
+    if player_hand_total > 21:
+        if player_has_ace:
+            player_hand_total -= 10
 
     canvas.itemconfig(hand_total_text, text=f"{player_hand_total}")
 
@@ -122,8 +229,12 @@ def render_hand():
         canvas.itemconfig(card_id, tags="card")
 
 
-# -------------------------------- UI SETUP -------------------------------- #
+def game_end(game_over):
+    if game_over:
+        play_again_button.place(x=270, y=160)
 
+
+# ----------------------------------- UI SETUP ----------------------------------- #
 window.title("Blackjack")
 window.config(width=696, height=480)
 
@@ -132,17 +243,23 @@ canvas = Canvas(width=696, height=480)
 table_img = PhotoImage(file="assets/table_with_chips.png")
 hit_button_image = PhotoImage(file="assets/button_hit-me.png")
 hold_button_image = PhotoImage(file="assets/button_hold.png")
+play_again_img = PhotoImage(file="assets/button_play-again.png")
 
 background = canvas.create_image(348, 240, image=table_img)
+game_state_label = canvas.create_text(348, 240, text="", fill=YELLOW, font='Arial 36 bold')
 hand_total_label = canvas.create_text(565, 300, text="Hand Total: ", fill=YELLOW, font='Arial 16 bold')
 hand_total_text = canvas.create_text(635, 300, text="0", fill=YELLOW, font='Arial 16 bold')
 hit_me_button = Button(image=hit_button_image, background=GREEN, border=0, command=hit_me)
-hold_button = Button(image=hold_button_image, background=GREEN, border=0, command=computer_turn)
+hold_button = Button(image=hold_button_image, background=GREEN, border=0, command=dealer_turn)
+play_again_button = Button(image=play_again_img, background=GREEN, border=0, command=play_again)
 
 canvas.pack()
 hit_me_button.place(x=520, y=325)
 hold_button.place(x=520, y=375)
+play_again_button.place(x=1000, y=1000)
 
+
+# -------------------------------- START THE GAME! -------------------------------- #
 start_new_game(player_hand, dealer_hand)
 
 window.mainloop()
