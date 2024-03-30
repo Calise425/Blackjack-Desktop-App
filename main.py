@@ -7,7 +7,12 @@ PURPLE = "#633068"
 TANGERINE = "#F98948"
 BLUE = "#058ED9"
 BLUE2 = "#0C6291"
+
 window = Tk()
+
+# TODO: After player accepts another card, trigger a check to see if they go bust
+# TODO: Add computer turn functionality, and a way to reset the board
+# TODO: Pull files/functions out into another file where possible
 
 card_back = PhotoImage(file="assets/card back.png")
 card_2 = PhotoImage(file="assets/2.png")
@@ -23,13 +28,6 @@ card_jack = PhotoImage(file="assets/jack.png")
 card_queen = PhotoImage(file="assets/queen.png")
 card_king = PhotoImage(file="assets/king.png")
 card_ace = PhotoImage(file="assets/ace.png")
-
-
-def deal_card(target_player: list):
-    """This function deals a new random card from the deck to the chosen players hand (dealer or player)"""
-    random_num = randint(2, 14)
-    target_player.append(deck[random_num])
-    render_hand()
 
 
 # I assigned a number from 2-14 to these cards to then pick a 'random' card using randint(2,14)
@@ -54,28 +52,74 @@ player_hand = []
 dealer_hand = []
 
 
-def check_win():
+def start_new_game(p_hand, d_hand):
+    """Clears all cards then deals the dealer and player both 2 cards"""
+    if len(p_hand) > 0:
+        p_hand.clear()
+        d_hand.clear()
+    deal_card(p_hand)
+    deal_card(p_hand)
+    deal_card(d_hand)
+    deal_card(d_hand)
+
+
+def deal_card(target_player: list):
+    """This function deals a new random card from the deck to the chosen players hand (dealer or player)
+    and then calls the function to display them on screen"""
+    random_num = randint(2, 14)
+    target_player.append(deck[random_num])
+    render_hand()
+
+
+def hit_me():
+    """Simply calls deal card but doesn't need an argument so can be passed into the button command"""
+    deal_card(player_hand)
+
+
+def computer_turn():
+    pass
+
+
+def check_state():
+    """Checks to see if player total is equal to or over 21,
+    and if not who wins between dealer and player"""
     pass
 
 
 def render_hand():
-    """This function goes through the cards in each hand and place them appropriately on the GUI"""
+    """This function removes old card images if there are any, then goes through the
+    hands and places the new cards on the GUI, as well as rendering player hand total"""
+    # Delete old card images
+    canvas.delete("card")
+
+    # Loop through player hand, render the cards, and render hand total
+    player_hand_total = 0
     player_x = 350
     player_y = 350
     for card in player_hand:
-        canvas.create_image(player_x, player_y, image=card["image"])
+        card_id = canvas.create_image(player_x, player_y, image=card["image"])
+        # Offsets the next card to be placed
         player_x += 25
         player_y += 18
+        player_hand_total += int(card["value"])
+        # Tag the card item with "card"
+        canvas.itemconfig(card_id, tags="card")
 
+    canvas.itemconfig(hand_total_text, text=f"{player_hand_total}")
+
+    # Same for the dealer
     dealer_x = 450
     dealer_y = 30
     for index, card in enumerate(dealer_hand):
+        # First card is face down
         if index == 0:
-            canvas.create_image(dealer_x, dealer_y, image=card_back)
+            card_id = canvas.create_image(dealer_x, dealer_y, image=card_back)
             dealer_x -= 30
         else:
-            canvas.create_image(dealer_x, dealer_y, image=card["image"])
-            dealer_x -= 25
+            card_id = canvas.create_image(dealer_x, dealer_y, image=card["image"])
+            dealer_x -= 30
+        # Tag the card item with "card"
+        canvas.itemconfig(card_id, tags="card")
 
 
 # -------------------------------- UI SETUP -------------------------------- #
@@ -84,18 +128,21 @@ window.title("Blackjack")
 window.config(width=696, height=480)
 
 canvas = Canvas(width=696, height=480)
+
 table_img = PhotoImage(file="assets/table_with_chips.png")
-canvas.create_image(348, 240, image=table_img)
-hand_total_label = canvas.create_text(550, 300, text="Hand Total: ", fill=YELLOW, font='Arial 16 bold')
-hand_total_text = canvas.create_text(620, 300, text="0", fill=YELLOW, font='Arial 16 bold')
+hit_button_image = PhotoImage(file="assets/button_hit-me.png")
+hold_button_image = PhotoImage(file="assets/button_hold.png")
+
+background = canvas.create_image(348, 240, image=table_img)
+hand_total_label = canvas.create_text(565, 300, text="Hand Total: ", fill=YELLOW, font='Arial 16 bold')
+hand_total_text = canvas.create_text(635, 300, text="0", fill=YELLOW, font='Arial 16 bold')
+hit_me_button = Button(image=hit_button_image, background=GREEN, border=0, command=hit_me)
+hold_button = Button(image=hold_button_image, background=GREEN, border=0, command=computer_turn)
+
 canvas.pack()
+hit_me_button.place(x=520, y=325)
+hold_button.place(x=520, y=375)
 
-# print(player_hand, dealer_hand)
-deal_card(dealer_hand)
-deal_card(dealer_hand)
-deal_card(dealer_hand)
-deal_card(dealer_hand)
-# print(player_hand)
-
+start_new_game(player_hand, dealer_hand)
 
 window.mainloop()
