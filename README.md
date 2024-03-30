@@ -8,13 +8,13 @@ Assets are all hand-drawn by me!
 1. Clone the repository to your local machine:
 
     ```bash
-    git clone https://github.com/your_username/blackjack-game.git
+    git clone https://github.com/Calise425/Blackjack-Desktop-App.git
     ```
 
 2. Navigate to the project directory:
 
     ```bash
-    cd blackjack-game
+    cd Blackjack-Desktop-App
     ```
 
 3. Install the required dependencies. Ensure you have Python installed on your system.
@@ -54,7 +54,7 @@ Assets are all hand-drawn by me!
 Contributions are welcome! Feel free to reach if you encounter any bugs or have suggestions for improvements.
 
 ## Wishlist/ TODO
-
+- Other suits! Since I drew the cards I figured a universal suit would be the easiest to tackle initially but I look forward to expanding the deck
 - I love the idea of making betting possible in some way, and tracking current chips
 - I want to include the ability to double down or split your hand (but both probably don't make sense until you can bet)
 - Make the play again button function better (currently when a new game starts I just send it way off-screen T-T)
