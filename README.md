@@ -18,6 +18,8 @@ Assets are all hand-drawn by me!
     ```
 
 3. Install the required dependencies. Ensure you have Python installed on your system.
+- Since Tkinter is a built-in library with Python, you won't need to install it separately, just make sure Python is installed
+- This project was written in Python 3.11
 
 4. Run the game:
 
